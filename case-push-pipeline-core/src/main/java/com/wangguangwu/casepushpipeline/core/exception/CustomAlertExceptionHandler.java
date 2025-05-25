@@ -1,6 +1,6 @@
-package com.wangguangwu.case_push_pipeline.core.exception;
+package com.wangguangwu.casepushpipeline.core.exception;
 
-import com.wangguangwu.case_push_pipeline.core.context.CaseContext;
+import com.wangguangwu.casepushpipeline.core.context.CaseContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**

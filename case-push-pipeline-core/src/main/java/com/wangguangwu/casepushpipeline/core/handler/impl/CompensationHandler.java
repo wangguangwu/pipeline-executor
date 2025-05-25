@@ -1,8 +1,10 @@
-package com.wangguangwu.case_push_pipeline.core.handler.impl;
+package com.wangguangwu.casepushpipeline.core.handler.impl;
 
-import com.wangguangwu.case_push_pipeline.core.context.CaseContext;
-import com.wangguangwu.case_push_pipeline.core.handler.CasePushHandler;
+import com.wangguangwu.casepushpipeline.core.context.CaseContext;
+import com.wangguangwu.casepushpipeline.core.handler.CasePushHandler;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * 理算结果推送处理器
@@ -30,7 +32,7 @@ public class CompensationHandler implements CasePushHandler {
         }
         
         // 模拟理算结果推送逻辑
-        Thread.sleep(300); // 模拟处理耗时
+        TimeUnit.MILLISECONDS.sleep(300);
         
         // 将处理结果放入上下文
         context.setAttribute("compensationProcessed", true);
@@ -40,6 +42,6 @@ public class CompensationHandler implements CasePushHandler {
     
     @Override
     public int getOrder() {
-        return 3; // 理算结果处理器优先级第三
+        return 3;
     }
 }

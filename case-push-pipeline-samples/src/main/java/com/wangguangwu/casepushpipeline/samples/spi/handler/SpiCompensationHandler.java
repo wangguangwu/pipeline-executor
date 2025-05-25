@@ -1,7 +1,7 @@
-package com.wangguangwu.case_push_pipeline.samples.spi.handler;
+package com.wangguangwu.casepushpipeline.samples.spi.handler;
 
-import com.wangguangwu.case_push_pipeline.core.context.CaseContext;
-import com.wangguangwu.case_push_pipeline.core.handler.CasePushHandler;
+import com.wangguangwu.casepushpipeline.core.context.CaseContext;
+import com.wangguangwu.casepushpipeline.core.handler.CasePushHandler;
 import lombok.extern.slf4j.Slf4j;
 
 /**

@@ -1,18 +1,17 @@
-package com.wangguangwu.case_push_pipeline.spring;
+package com.wangguangwu.casepushpipeline.spring;
 
-import com.wangguangwu.case_push_pipeline.core.CasePushPipeline;
-import com.wangguangwu.case_push_pipeline.core.context.CaseContext;
-import com.wangguangwu.case_push_pipeline.core.context.CasePushHandlerContext;
-import com.wangguangwu.case_push_pipeline.core.exception.CasePushExceptionHandler;
-import com.wangguangwu.case_push_pipeline.core.handler.CasePushHandler;
-import com.wangguangwu.case_push_pipeline.spring.exception.SpringDefaultExceptionHandler;
+import com.wangguangwu.casepushpipeline.core.CasePushPipeline;
+import com.wangguangwu.casepushpipeline.core.context.CaseContext;
+import com.wangguangwu.casepushpipeline.core.context.CasePushHandlerContext;
+import com.wangguangwu.casepushpipeline.core.exception.CasePushExceptionHandler;
+import com.wangguangwu.casepushpipeline.core.handler.CasePushHandler;
+import com.wangguangwu.casepushpipeline.spring.exception.SpringDefaultExceptionHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 /**

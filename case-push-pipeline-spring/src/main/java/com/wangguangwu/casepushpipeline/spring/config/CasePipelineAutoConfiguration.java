@@ -1,6 +1,6 @@
-package com.wangguangwu.case_push_pipeline.spring.config;
+package com.wangguangwu.casepushpipeline.spring.config;
 
-import com.wangguangwu.case_push_pipeline.spring.exception.SpringDefaultExceptionHandler;
+import com.wangguangwu.casepushpipeline.spring.exception.SpringDefaultExceptionHandler;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

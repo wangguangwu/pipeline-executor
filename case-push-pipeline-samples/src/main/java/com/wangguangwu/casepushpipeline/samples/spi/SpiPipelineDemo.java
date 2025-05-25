@@ -1,8 +1,8 @@
-package com.wangguangwu.case_push_pipeline.samples.spi;
+package com.wangguangwu.casepushpipeline.samples.spi;
 
-import com.wangguangwu.case_push_pipeline.core.context.CaseContext;
-import com.wangguangwu.case_push_pipeline.core.exception.CustomAlertExceptionHandler;
-import com.wangguangwu.case_push_pipeline.spi.SpiCasePushPipeline;
+import com.wangguangwu.casepushpipeline.core.context.CaseContext;
+import com.wangguangwu.casepushpipeline.core.exception.CustomAlertExceptionHandler;
+import com.wangguangwu.casepushpipeline.spi.SpiCasePushPipeline;
 import lombok.extern.slf4j.Slf4j;
 
 /**

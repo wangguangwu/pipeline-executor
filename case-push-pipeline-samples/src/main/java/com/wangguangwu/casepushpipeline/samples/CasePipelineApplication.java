@@ -1,7 +1,7 @@
-package com.wangguangwu.case_push_pipeline.samples;
+package com.wangguangwu.casepushpipeline.samples;
 
-import com.wangguangwu.case_push_pipeline.samples.core.CorePipelineDemo;
-import com.wangguangwu.case_push_pipeline.samples.spi.SpiPipelineDemo;
+import com.wangguangwu.casepushpipeline.samples.core.CorePipelineDemo;
+import com.wangguangwu.casepushpipeline.samples.spi.SpiPipelineDemo;
 import lombok.extern.slf4j.Slf4j;
 
 /**

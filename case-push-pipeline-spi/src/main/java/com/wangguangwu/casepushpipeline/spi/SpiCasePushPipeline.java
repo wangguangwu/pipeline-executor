@@ -1,10 +1,10 @@
-package com.wangguangwu.case_push_pipeline.spi;
+package com.wangguangwu.casepushpipeline.spi;
 
-import com.wangguangwu.case_push_pipeline.core.CasePushPipeline;
-import com.wangguangwu.case_push_pipeline.core.context.CaseContext;
-import com.wangguangwu.case_push_pipeline.core.exception.CasePushExceptionHandler;
-import com.wangguangwu.case_push_pipeline.core.exception.DefaultCasePushExceptionHandler;
-import com.wangguangwu.case_push_pipeline.core.handler.CasePushHandler;
+import com.wangguangwu.casepushpipeline.core.CasePushPipeline;
+import com.wangguangwu.casepushpipeline.core.context.CaseContext;
+import com.wangguangwu.casepushpipeline.core.exception.CasePushExceptionHandler;
+import com.wangguangwu.casepushpipeline.core.exception.DefaultCasePushExceptionHandler;
+import com.wangguangwu.casepushpipeline.core.handler.CasePushHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;

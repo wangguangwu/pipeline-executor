@@ -1,6 +1,6 @@
-package com.wangguangwu.case_push_pipeline.core.handler;
+package com.wangguangwu.casepushpipeline.core.handler;
 
-import com.wangguangwu.case_push_pipeline.core.context.CaseContext;
+import com.wangguangwu.casepushpipeline.core.context.CaseContext;
 
 /**
  * 案件推送处理器接口

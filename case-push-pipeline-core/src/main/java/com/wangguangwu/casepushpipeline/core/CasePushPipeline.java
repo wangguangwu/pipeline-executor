@@ -1,10 +1,10 @@
-package com.wangguangwu.case_push_pipeline.core;
+package com.wangguangwu.casepushpipeline.core;
 
-import com.wangguangwu.case_push_pipeline.core.context.CaseContext;
-import com.wangguangwu.case_push_pipeline.core.context.CasePushHandlerContext;
-import com.wangguangwu.case_push_pipeline.core.exception.CasePushExceptionHandler;
-import com.wangguangwu.case_push_pipeline.core.exception.DefaultCasePushExceptionHandler;
-import com.wangguangwu.case_push_pipeline.core.handler.CasePushHandler;
+import com.wangguangwu.casepushpipeline.core.context.CaseContext;
+import com.wangguangwu.casepushpipeline.core.context.CasePushHandlerContext;
+import com.wangguangwu.casepushpipeline.core.exception.CasePushExceptionHandler;
+import com.wangguangwu.casepushpipeline.core.exception.DefaultCasePushExceptionHandler;
+import com.wangguangwu.casepushpipeline.core.handler.CasePushHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -64,15 +64,13 @@ public class CasePushPipeline {
      * 注册多个处理器
      *
      * @param handlers 处理器列表
-     * @return 当前责任链实例，支持链式调用
      */
-    public CasePushPipeline registerAll(List<CasePushHandler> handlers) {
+    public void registerAll(List<CasePushHandler> handlers) {
         if (handlers != null && !handlers.isEmpty()) {
             for (CasePushHandler handler : handlers) {
                 register(handler);
             }
         }
-        return this;
     }
 
     /**

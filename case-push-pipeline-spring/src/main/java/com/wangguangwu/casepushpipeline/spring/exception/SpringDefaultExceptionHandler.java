@@ -1,7 +1,7 @@
-package com.wangguangwu.case_push_pipeline.spring.exception;
+package com.wangguangwu.casepushpipeline.spring.exception;
 
-import com.wangguangwu.case_push_pipeline.core.context.CaseContext;
-import com.wangguangwu.case_push_pipeline.core.exception.CasePushExceptionHandler;
+import com.wangguangwu.casepushpipeline.core.context.CaseContext;
+import com.wangguangwu.casepushpipeline.core.exception.CasePushExceptionHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

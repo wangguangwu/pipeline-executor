@@ -1,8 +1,10 @@
-package com.wangguangwu.case_push_pipeline.core.handler.impl;
+package com.wangguangwu.casepushpipeline.core.handler.impl;
 
-import com.wangguangwu.case_push_pipeline.core.context.CaseContext;
-import com.wangguangwu.case_push_pipeline.core.handler.CasePushHandler;
+import com.wangguangwu.casepushpipeline.core.context.CaseContext;
+import com.wangguangwu.casepushpipeline.core.handler.CasePushHandler;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * 影像资料上传处理器
@@ -30,8 +32,8 @@ public class ImageUploadHandler implements CasePushHandler {
         }
         
         // 模拟影像上传逻辑
-        Thread.sleep(200); // 模拟处理耗时
-        
+        TimeUnit.MILLISECONDS.sleep(200);
+
         // 将处理结果放入上下文
         context.setAttribute("imageUploaded", true);
         context.setAttribute("imageCount", 5);

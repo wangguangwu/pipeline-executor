@@ -1,8 +1,10 @@
-package com.wangguangwu.case_push_pipeline.core.handler.impl;
+package com.wangguangwu.casepushpipeline.core.handler.impl;
 
-import com.wangguangwu.case_push_pipeline.core.context.CaseContext;
-import com.wangguangwu.case_push_pipeline.core.handler.CasePushHandler;
+import com.wangguangwu.casepushpipeline.core.context.CaseContext;
+import com.wangguangwu.casepushpipeline.core.handler.CasePushHandler;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * 报案处理器
@@ -21,17 +23,17 @@ public class ReportHandler implements CasePushHandler {
     @Override
     public void handle(CaseContext context) throws Exception {
         log.info("处理报案信息, 案件ID: {}", context.getCaseId());
-        
+
         // 模拟报案处理逻辑
-        Thread.sleep(100); // 模拟处理耗时
-        
+        TimeUnit.MILLISECONDS.sleep(100);
+
         // 将处理结果放入上下文
         context.setAttribute("reportTime", System.currentTimeMillis());
         context.setAttribute("reportProcessed", true);
     }
-    
+
     @Override
     public int getOrder() {
-        return 1; // 报案处理器优先级最高
+        return 1;
     }
 }

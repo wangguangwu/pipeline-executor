@@ -1,4 +1,4 @@
-package com.wangguangwu.case_push_pipeline.core.context;
+package com.wangguangwu.casepushpipeline.core.context;
 
 import lombok.Getter;
 import lombok.ToString;

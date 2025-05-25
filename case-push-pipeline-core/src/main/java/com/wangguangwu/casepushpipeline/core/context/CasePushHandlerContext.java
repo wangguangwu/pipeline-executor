@@ -1,6 +1,6 @@
-package com.wangguangwu.case_push_pipeline.core.context;
+package com.wangguangwu.casepushpipeline.core.context;
 
-import com.wangguangwu.case_push_pipeline.core.handler.CasePushHandler;
+import com.wangguangwu.casepushpipeline.core.handler.CasePushHandler;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

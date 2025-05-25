@@ -1,7 +1,7 @@
-package com.wangguangwu.case_push_pipeline.samples.spring;
+package com.wangguangwu.casepushpipeline.samples.spring;
 
-import com.wangguangwu.case_push_pipeline.core.context.CaseContext;
-import com.wangguangwu.case_push_pipeline.spring.SpringCasePushPipeline;
+import com.wangguangwu.casepushpipeline.core.context.CaseContext;
+import com.wangguangwu.casepushpipeline.spring.SpringCasePushPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
