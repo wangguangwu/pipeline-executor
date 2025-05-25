@@ -15,7 +15,7 @@ public class SpiImageUploadHandler implements CasePushHandler {
 
     @Override
     public String name() {
-        return "SPI影像资料上传处理器";
+        return "影像上传处理器";
     }
 
     @Override
@@ -37,10 +37,5 @@ public class SpiImageUploadHandler implements CasePushHandler {
         context.setAttribute("imageCount", 15);
         context.setAttribute("imageUploadTime", System.currentTimeMillis());
         context.setAttribute("processedBy", "SPI");
-    }
-    
-    @Override
-    public int getOrder() {
-        return 2; // 影像上传处理器优先级第二
     }
 }

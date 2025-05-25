@@ -17,7 +17,7 @@ public class ImageUploadHandler implements CasePushHandler {
 
     @Override
     public String name() {
-        return "影像资料上传处理器";
+        return "影像上传处理器";
     }
 
     @Override
@@ -38,10 +38,5 @@ public class ImageUploadHandler implements CasePushHandler {
         context.setAttribute("imageUploaded", true);
         context.setAttribute("imageCount", 5);
         context.setAttribute("imageUploadTime", System.currentTimeMillis());
-    }
-    
-    @Override
-    public int getOrder() {
-        return 2; // 影像上传处理器优先级第二
     }
 }

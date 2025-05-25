@@ -26,10 +26,18 @@ public class ErrorHandler implements CasePushHandler {
     public String name() {
         return "错误处理器";
     }
-
+    
     @Override
-    public int getOrder() {
-        // 设置为20，在影像上传处理器之后执行
-        return 20;
+    public boolean handleException(CaseContext context, Exception e) {
+        // 演示处理器自行处理异常
+        log.info("错误处理器自行处理异常: {}", e.getMessage());
+        
+        // 将异常信息记录到上下文中
+        context.setAttribute("errorHandled", true);
+        context.setAttribute("errorMessage", e.getMessage());
+        context.setAttribute("errorTime", System.currentTimeMillis());
+        
+        // 返回true表示已处理异常，不需要交给全局异常处理器
+        return true;
     }
 }

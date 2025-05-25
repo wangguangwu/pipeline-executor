@@ -15,7 +15,7 @@ public class SpiReportHandler implements CasePushHandler {
 
     @Override
     public String name() {
-        return "SPI报案处理器";
+        return "报案处理器";
     }
 
     @Override
@@ -29,10 +29,5 @@ public class SpiReportHandler implements CasePushHandler {
         context.setAttribute("reportTime", System.currentTimeMillis());
         context.setAttribute("reportProcessed", true);
         context.setAttribute("processedBy", "SPI");
-    }
-    
-    @Override
-    public int getOrder() {
-        return 1; // 报案处理器优先级最高
     }
 }

@@ -28,12 +28,16 @@ public interface CasePushHandler {
     void handle(CaseContext context) throws Exception;
     
     /**
-     * 获取处理器顺序
-     * 数值越小优先级越高，默认为0
-     * 
-     * @return 处理器顺序值
+     * 处理异常
+     * 当处理器执行过程中发生异常时，会调用此方法进行处理
+     * 默认实现为不处理异常，返回false表示需要交给全局异常处理器处理
+     *
+     * @param context 案件上下文
+     * @param e 异常
+     * @return 是否已处理异常，true表示已处理，false表示未处理需要交给全局异常处理器
      */
-    default int getOrder() {
-        return 0;
+    default boolean handleException(CaseContext context, Exception e) {
+        // 默认不处理异常，交给全局异常处理器
+        return false;
     }
 }

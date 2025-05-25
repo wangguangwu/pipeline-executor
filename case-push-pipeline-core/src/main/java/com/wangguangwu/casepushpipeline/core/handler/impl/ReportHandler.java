@@ -31,9 +31,4 @@ public class ReportHandler implements CasePushHandler {
         context.setAttribute("reportTime", System.currentTimeMillis());
         context.setAttribute("reportProcessed", true);
     }
-
-    @Override
-    public int getOrder() {
-        return 1;
-    }
 }

@@ -17,7 +17,7 @@ public class CompensationHandler implements CasePushHandler {
 
     @Override
     public String name() {
-        return "理算结果推送处理器";
+        return "理赔处理器";
     }
 
     @Override
@@ -31,6 +31,14 @@ public class CompensationHandler implements CasePushHandler {
             return;
         }
         
+        // 检查是否有错误发生
+        Boolean errorHandled = context.getAttribute("errorHandled", Boolean.class);
+        if (errorHandled != null && errorHandled) {
+            log.warn("前序处理器发生错误，跳过理算结果推送, 案件ID: {}, 错误信息: {}", 
+                    context.getCaseId(), context.getAttribute("errorMessage"));
+            return;
+        }
+        
         // 模拟理算结果推送逻辑
         TimeUnit.MILLISECONDS.sleep(300);
         
@@ -41,7 +49,16 @@ public class CompensationHandler implements CasePushHandler {
     }
     
     @Override
-    public int getOrder() {
-        return 3;
+    public boolean handleException(CaseContext context, Exception e) {
+        // 演示处理器自行处理异常
+        log.info("理赔处理器自行处理异常: {}", e.getMessage());
+        
+        // 将异常信息记录到上下文中
+        context.setAttribute("compensationError", true);
+        context.setAttribute("compensationErrorMessage", e.getMessage());
+        context.setAttribute("compensationErrorTime", System.currentTimeMillis());
+        
+        // 返回true表示已处理异常，不需要交给全局异常处理器
+        return true;
     }
 }

@@ -15,7 +15,7 @@ public class SpiCompensationHandler implements CasePushHandler {
 
     @Override
     public String name() {
-        return "SPI理算结果推送处理器";
+        return "理赔处理器";
     }
 
     @Override
@@ -37,10 +37,5 @@ public class SpiCompensationHandler implements CasePushHandler {
         context.setAttribute("compensationAmount", 10000.0);
         context.setAttribute("compensationTime", System.currentTimeMillis());
         context.setAttribute("processedBy", "SPI");
-    }
-    
-    @Override
-    public int getOrder() {
-        return 3; // 理算结果处理器优先级第三
     }
 }
