@@ -1,0 +1,3 @@
+com.wangguangwu.casepipeline.samples.spi.handler.SpiReportHandler
+com.wangguangwu.casepipeline.samples.spi.handler.SpiImageUploadHandler
+com.wangguangwu.casepipeline.samples.spi.handler.SpiCompensationHandler
