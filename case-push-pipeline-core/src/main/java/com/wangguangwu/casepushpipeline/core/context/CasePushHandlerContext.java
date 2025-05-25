@@ -1,6 +1,7 @@
 package com.wangguangwu.casepushpipeline.core.context;
 
-import com.wangguangwu.casepushpipeline.core.handler.CasePushHandler;
+import com.wangguangwu.casepushpipeline.core.handler.api.CasePushHandler;
+import com.wangguangwu.casepushpipeline.core.result.HandlerResult;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,11 +33,24 @@ public class CasePushHandlerContext {
         long start = System.currentTimeMillis();
         try {
             log.info("开始执行处理器: {}, 案件ID: {}", handler.name(), context.getCaseId());
-            handler.handle(context);
-            log.info("处理器执行完成: {}, 案件ID: {}, 耗时: {}ms", 
-                    handler.name(), 
-                    context.getCaseId(), 
-                    System.currentTimeMillis() - start);
+            
+            // 调用处理器并获取结果
+            HandlerResult result = handler.handle(context);
+            
+            // 将结果添加到上下文中
+            if (result != null) {
+                context.addResult(handler.name(), result);
+                log.info("处理器执行完成: {}, 案件ID: {}, 结果: {}, 耗时: {}ms", 
+                        handler.name(), 
+                        context.getCaseId(),
+                        result.isSuccess() ? "成功" : "失败", 
+                        System.currentTimeMillis() - start);
+            } else {
+                log.warn("处理器执行完成但返回结果为空: {}, 案件ID: {}, 耗时: {}ms", 
+                        handler.name(), 
+                        context.getCaseId(), 
+                        System.currentTimeMillis() - start);
+            }
         } catch (Exception e) {
             log.error("处理器执行异常: {}, 案件ID: {}, 耗时: {}ms", 
                     handler.name(), 

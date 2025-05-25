@@ -1,10 +1,12 @@
 package com.wangguangwu.casepushpipeline.core.context;
 
+import com.wangguangwu.casepushpipeline.core.result.HandlerResult;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 案件上下文
@@ -25,6 +27,11 @@ public class CaseContext {
      * 案件属性
      */
     private final Map<String, Object> attributes = new HashMap<>();
+    
+    /**
+     * 处理器结果
+     */
+    private final Map<String, HandlerResult> results = new ConcurrentHashMap<>();
 
     /**
      * 构造函数
@@ -76,5 +83,56 @@ public class CaseContext {
             return (T) value;
         }
         throw new ClassCastException("属性[" + key + "]不能转换为" + clazz.getName());
+    }
+    
+    /**
+     * 添加处理器结果
+     *
+     * @param handlerName 处理器名称
+     * @param result      处理结果
+     */
+    public void addResult(String handlerName, HandlerResult result) {
+        results.put(handlerName, result);
+    }
+    
+    /**
+     * 获取处理器结果
+     *
+     * @param handlerName 处理器名称
+     * @return 处理结果
+     */
+    public HandlerResult getResult(String handlerName) {
+        return results.get(handlerName);
+    }
+    
+    /**
+     * 获取处理器结果并转换为指定类型
+     *
+     * @param handlerName 处理器名称
+     * @param clazz       结果类型
+     * @param <T>         结果类型
+     * @return 处理结果
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends HandlerResult> T getResult(String handlerName, Class<T> clazz) {
+        HandlerResult result = results.get(handlerName);
+        if (result == null) {
+            return null;
+        }
+        if (clazz.isInstance(result)) {
+            return (T) result;
+        }
+        throw new ClassCastException("结果[" + handlerName + "]不能转换为" + clazz.getName());
+    }
+    
+    /**
+     * 判断处理器是否执行成功
+     *
+     * @param handlerName 处理器名称
+     * @return 是否成功
+     */
+    public boolean isHandlerSuccess(String handlerName) {
+        HandlerResult result = results.get(handlerName);
+        return result != null && result.isSuccess();
     }
 }

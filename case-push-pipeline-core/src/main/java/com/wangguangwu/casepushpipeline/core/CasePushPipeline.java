@@ -1,13 +1,18 @@
 package com.wangguangwu.casepushpipeline.core;
 
+import com.wangguangwu.casepushpipeline.core.config.PipelineConfig;
 import com.wangguangwu.casepushpipeline.core.context.CaseContext;
-import com.wangguangwu.casepushpipeline.core.context.CasePushHandlerContext;
 import com.wangguangwu.casepushpipeline.core.exception.CasePushExceptionHandler;
 import com.wangguangwu.casepushpipeline.core.exception.DefaultCasePushExceptionHandler;
+import com.wangguangwu.casepushpipeline.core.exception.strategy.ExceptionHandlingStrategy;
+import com.wangguangwu.casepushpipeline.core.exception.strategy.ExceptionHandlingStrategyFactory;
+import com.wangguangwu.casepushpipeline.core.executor.DefaultPipelineExecutor;
+import com.wangguangwu.casepushpipeline.core.executor.PipelineExecutor;
 import com.wangguangwu.casepushpipeline.core.handler.CasePushHandler;
+import com.wangguangwu.casepushpipeline.core.registry.DefaultHandlerRegistry;
+import com.wangguangwu.casepushpipeline.core.registry.HandlerRegistry;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -20,20 +25,20 @@ import java.util.List;
 public class CasePushPipeline {
 
     /**
-     * 处理器上下文列表，使用LinkedList保证顺序
+     * 处理器注册器
      */
-    private final LinkedList<CasePushHandlerContext> handlerContexts = new LinkedList<>();
-
+    private final HandlerRegistry handlerRegistry;
+    
     /**
-     * 异常处理器
+     * 责任链执行器
      */
-    private CasePushExceptionHandler exceptionHandler;
+    private final PipelineExecutor executor;
 
     /**
      * 构造函数
      */
     public CasePushPipeline() {
-        this(null);
+        this(null, PipelineConfig.defaultConfig());
     }
 
     /**
@@ -42,7 +47,42 @@ public class CasePushPipeline {
      * @param exceptionHandler 异常处理器
      */
     public CasePushPipeline(CasePushExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler != null ? exceptionHandler : new DefaultCasePushExceptionHandler();
+        this(exceptionHandler, PipelineConfig.defaultConfig());
+    }
+    
+    /**
+     * 构造函数
+     *
+     * @param config 责任链配置
+     */
+    public CasePushPipeline(PipelineConfig config) {
+        this(null, config);
+    }
+    
+    /**
+     * 构造函数
+     *
+     * @param exceptionHandler 异常处理器
+     * @param config 责任链配置
+     */
+    public CasePushPipeline(CasePushExceptionHandler exceptionHandler, PipelineConfig config) {
+        CasePushExceptionHandler handler = exceptionHandler != null ? 
+                exceptionHandler : new DefaultCasePushExceptionHandler();
+        PipelineConfig pipelineConfig = config != null ? config : PipelineConfig.defaultConfig();
+        
+        this.handlerRegistry = new DefaultHandlerRegistry();
+        this.executor = new DefaultPipelineExecutor(handler, pipelineConfig);
+    }
+    
+    /**
+     * 构造函数
+     *
+     * @param handlerRegistry 处理器注册器
+     * @param executor 责任链执行器
+     */
+    public CasePushPipeline(HandlerRegistry handlerRegistry, PipelineExecutor executor) {
+        this.handlerRegistry = handlerRegistry != null ? handlerRegistry : new DefaultHandlerRegistry();
+        this.executor = executor != null ? executor : new DefaultPipelineExecutor();
     }
 
     /**
@@ -52,10 +92,7 @@ public class CasePushPipeline {
      * @return 当前责任链实例，支持链式调用
      */
     public CasePushPipeline register(CasePushHandler handler) {
-        if (handler != null) {
-            handlerContexts.addLast(new CasePushHandlerContext(handler));
-            log.info("注册处理器: {}", handler.name());
-        }
+        handlerRegistry.register(handler);
         return this;
     }
     
@@ -66,10 +103,7 @@ public class CasePushPipeline {
      * @return 当前责任链实例，支持链式调用
      */
     public CasePushPipeline registerFirst(CasePushHandler handler) {
-        if (handler != null) {
-            handlerContexts.addFirst(new CasePushHandlerContext(handler));
-            log.info("在链表头部注册处理器: {}", handler.name());
-        }
+        handlerRegistry.registerFirst(handler);
         return this;
     }
     
@@ -81,19 +115,7 @@ public class CasePushPipeline {
      * @return 当前责任链实例，支持链式调用
      */
     public CasePushPipeline registerBefore(String existingHandlerName, CasePushHandler newHandler) {
-        if (newHandler == null || existingHandlerName == null) {
-            return this;
-        }
-        
-        int index = findHandlerIndex(existingHandlerName);
-        if (index >= 0) {
-            handlerContexts.add(index, new CasePushHandlerContext(newHandler));
-            log.info("在处理器[{}]之前注册处理器: {}", existingHandlerName, newHandler.name());
-        } else {
-            // 如果没找到指定的处理器，则添加到末尾
-            log.warn("未找到处理器[{}]，将新处理器[{}]添加到末尾", existingHandlerName, newHandler.name());
-            register(newHandler);
-        }
+        handlerRegistry.registerBefore(existingHandlerName, newHandler);
         return this;
     }
     
@@ -105,35 +127,8 @@ public class CasePushPipeline {
      * @return 当前责任链实例，支持链式调用
      */
     public CasePushPipeline registerAfter(String existingHandlerName, CasePushHandler newHandler) {
-        if (newHandler == null || existingHandlerName == null) {
-            return this;
-        }
-        
-        int index = findHandlerIndex(existingHandlerName);
-        if (index >= 0) {
-            handlerContexts.add(index + 1, new CasePushHandlerContext(newHandler));
-            log.info("在处理器[{}]之后注册处理器: {}", existingHandlerName, newHandler.name());
-        } else {
-            // 如果没找到指定的处理器，则添加到末尾
-            log.warn("未找到处理器[{}]，将新处理器[{}]添加到末尾", existingHandlerName, newHandler.name());
-            register(newHandler);
-        }
+        handlerRegistry.registerAfter(existingHandlerName, newHandler);
         return this;
-    }
-
-    /**
-     * 查找处理器在链表中的索引
-     *
-     * @param handlerName 处理器名称
-     * @return 索引，如果未找到则返回-1
-     */
-    private int findHandlerIndex(String handlerName) {
-        for (int i = 0; i < handlerContexts.size(); i++) {
-            if (handlerName.equals(handlerContexts.get(i).getHandler().name())) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     /**
@@ -143,11 +138,7 @@ public class CasePushPipeline {
      * @return 当前责任链实例，支持链式调用
      */
     public CasePushPipeline registerAll(List<CasePushHandler> handlers) {
-        if (handlers != null && !handlers.isEmpty()) {
-            for (CasePushHandler handler : handlers) {
-                register(handler);
-            }
-        }
+        handlerRegistry.registerAll(handlers);
         return this;
     }
 
@@ -158,24 +149,45 @@ public class CasePushPipeline {
      * @return 当前责任链实例，支持链式调用
      */
     public CasePushPipeline setExceptionHandler(CasePushExceptionHandler exceptionHandler) {
-        if (exceptionHandler != null) {
-            this.exceptionHandler = exceptionHandler;
+        if (exceptionHandler != null && executor instanceof DefaultPipelineExecutor) {
+            // 创建新的执行器，使用新的异常处理策略
+            ExceptionHandlingStrategy strategy = ExceptionHandlingStrategyFactory.createStrategy(
+                    getConfig(), exceptionHandler);
+            return new CasePushPipeline(this.handlerRegistry, new DefaultPipelineExecutor(strategy, getConfig()));
+        }
+        return this;
+    }
+    
+    /**
+     * 设置异常处理模式
+     *
+     * @param mode 异常处理模式
+     * @return 当前责任链实例，支持链式调用
+     */
+    public CasePushPipeline setExceptionHandlingMode(PipelineConfig.ExceptionHandlingMode mode) {
+        if (mode != null && executor instanceof DefaultPipelineExecutor) {
+            // 创建新的配置
+            PipelineConfig newConfig = PipelineConfig.builder()
+                    .exceptionHandlingMode(mode)
+                    .enablePerformanceMonitoring(getConfig().isEnablePerformanceMonitoring())
+                    .enableVerboseLogging(getConfig().isEnableVerboseLogging())
+                    .build();
+            
+            // 创建新的执行器
+            DefaultPipelineExecutor currentExecutor = (DefaultPipelineExecutor) executor;
+            return new CasePushPipeline(this.handlerRegistry, new DefaultPipelineExecutor(
+                    ExceptionHandlingStrategyFactory.createStrategy(newConfig, null), newConfig));
         }
         return this;
     }
 
     /**
      * 初始化责任链
-     * 由于使用LinkedList，处理器的顺序已经由添加顺序确定，不需要额外排序
+     * 
      * @return 当前责任链实例，支持链式调用
      */
     public CasePushPipeline init() {
-        log.info("责任链初始化完成，共有{}个处理器", handlerContexts.size());
-        
-        // 打印处理器顺序
-        if (!handlerContexts.isEmpty()) {
-            log.info(getHandlerOrderInfo());
-        }
+        handlerRegistry.init();
         return this;
     }
 
@@ -185,20 +197,7 @@ public class CasePushPipeline {
      * @return 处理器执行顺序的字符串表示
      */
     public String getHandlerOrderInfo() {
-        if (handlerContexts.isEmpty()) {
-            return "暂无处理器";
-        }
-        
-        StringBuilder sb = new StringBuilder("处理器执行顺序: ");
-        boolean first = true;
-        for (CasePushHandlerContext handlerContext : handlerContexts) {
-            if (!first) {
-                sb.append(" -> ");
-            }
-            sb.append(handlerContext.getHandler().name());
-            first = false;
-        }
-        return sb.toString();
+        return handlerRegistry.getHandlerOrderInfo();
     }
 
     /**
@@ -212,61 +211,33 @@ public class CasePushPipeline {
             throw new IllegalArgumentException("案件上下文不能为空");
         }
         
-        String caseId = context.getCaseId();
-        log.info("开始执行责任链, 案件ID: {}", caseId);
-        long start = System.currentTimeMillis();
-        
-        try {
-            executeHandlers(context);
-            
-            log.info("责任链执行完成, 案件ID: {}, 耗时: {}ms", 
-                    caseId, 
-                    System.currentTimeMillis() - start);
-        } catch (Exception e) {
-            log.error("责任链执行异常, 案件ID: {}", caseId, e);
-            throw e;
-        }
+        executor.execute(handlerRegistry.getHandlerContexts(), context);
     }
     
     /**
-     * 执行所有处理器
+     * 获取最后一次执行的耗时（毫秒）
      *
-     * @param context 案件上下文
+     * @return 执行耗时
      */
-    private void executeHandlers(CaseContext context) {
-        // 按顺序执行处理器
-        for (CasePushHandlerContext handlerContext : handlerContexts) {
-            try {
-                handlerContext.invoke(context);
-            } catch (Exception e) {
-                handleException(handlerContext.getHandler(), context, e);
-                break;
-            }
-        }
+    public long getLastExecutionTime() {
+        return executor.getLastExecutionTime();
     }
     
     /**
-     * 处理异常
+     * 获取执行状态
      *
-     * @param handler 处理器
-     * @param context 案件上下文
-     * @param e 异常
+     * @return 执行状态
      */
-    private void handleException(CasePushHandler handler, CaseContext context, Exception e) {
-        // 先让处理器自己尝试处理异常
-        boolean handled = handler.handleException(context, e);
-        
-        // 如果处理器没有处理异常，则交给全局异常处理器
-        if (!handled) {
-            log.error("处理器[{}]执行异常且未自行处理, 案件ID: {}", 
-                    handler.name(), 
-                    context.getCaseId(), 
-                    e);
-            exceptionHandler.handle(context, e);
-        } else {
-            log.info("处理器[{}]执行异常但已自行处理, 案件ID: {}", 
-                    handler.name(), 
-                    context.getCaseId());
-        }
+    public PipelineExecutor.ExecutionStatus getExecutionStatus() {
+        return executor.getExecutionStatus();
+    }
+    
+    /**
+     * 获取责任链配置
+     *
+     * @return 责任链配置
+     */
+    public PipelineConfig getConfig() {
+        return executor.getConfig();
     }
 }

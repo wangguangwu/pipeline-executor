@@ -1,4 +1,4 @@
-package com.wangguangwu.casepushpipeline.core.handler;
+package com.wangguangwu.casepushpipeline.core.handler.api;
 
 import com.wangguangwu.casepushpipeline.core.context.CaseContext;
 import com.wangguangwu.casepushpipeline.core.result.HandlerResult;
