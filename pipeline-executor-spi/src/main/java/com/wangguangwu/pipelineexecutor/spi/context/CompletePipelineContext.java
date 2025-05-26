@@ -12,8 +12,7 @@ public interface CompletePipelineContext<R> extends
         PipelineContext,
         AttributeStore,
         TransactionManager,
-        ExecutionControl,
-        ResultHolder<R> {
+        ExecutionControl {
 
     /**
      * 获取上下文创建时的元数据
