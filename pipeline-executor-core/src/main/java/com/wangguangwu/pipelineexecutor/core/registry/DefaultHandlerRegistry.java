@@ -1,6 +1,6 @@
 package com.wangguangwu.pipelineexecutor.core.registry;
 
-import com.wangguangwu.pipelineexecutor.core.handler.api.PipelineHandler;
+import com.wangguangwu.pipelineexecutor.core.handler.PipelineHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;

@@ -22,17 +22,15 @@ public class PipelineContext {
      * 任务ID
      */
     private final String taskId;
-    
+
     /**
      * 处理器结果
      * -- GETTER --
-     *  获取所有处理器结果
-     *
-     * @return 处理器结果映射
+     * 获取所有处理器结果
      */
     @Getter
     private final Map<String, HandlerResult> results = new ConcurrentHashMap<>();
-    
+
     /**
      * 上下文属性
      */
@@ -49,7 +47,7 @@ public class PipelineContext {
         }
         this.taskId = taskId;
     }
-    
+
     /**
      * 添加处理器结果
      *
@@ -60,7 +58,7 @@ public class PipelineContext {
             results.put(result.getHandlerName(), result);
         }
     }
-    
+
     /**
      * 添加处理器结果
      *
@@ -70,7 +68,7 @@ public class PipelineContext {
     public void addResult(String handlerName, HandlerResult result) {
         results.put(handlerName, result);
     }
-    
+
     /**
      * 获取处理器结果
      *
@@ -80,7 +78,7 @@ public class PipelineContext {
     public HandlerResult getResult(String handlerName) {
         return results.get(handlerName);
     }
-    
+
     /**
      * 获取处理器结果并转换为指定类型
      *
@@ -100,7 +98,7 @@ public class PipelineContext {
         }
         throw new ClassCastException("结果[" + handlerName + "]不能转换为" + clazz.getName());
     }
-    
+
     /**
      * 判断处理器是否执行成功
      *
@@ -111,7 +109,7 @@ public class PipelineContext {
         HandlerResult result = results.get(handlerName);
         return result != null && result.isSuccess();
     }
-    
+
     /**
      * 获取所有结果名称
      *
@@ -120,7 +118,7 @@ public class PipelineContext {
     public Set<String> getResultNames() {
         return results.keySet();
     }
-    
+
     /**
      * 设置属性
      *
@@ -130,7 +128,7 @@ public class PipelineContext {
     public void setAttribute(String name, Object value) {
         attributes.put(name, value);
     }
-    
+
     /**
      * 获取属性
      *
@@ -140,7 +138,7 @@ public class PipelineContext {
     public Object getAttribute(String name) {
         return attributes.get(name);
     }
-    
+
     /**
      * 获取属性并转换为指定类型
      *
@@ -160,7 +158,7 @@ public class PipelineContext {
         }
         throw new ClassCastException("属性[" + name + "]不能转换为" + clazz.getName());
     }
-    
+
     /**
      * 判断是否包含属性
      *
@@ -170,7 +168,7 @@ public class PipelineContext {
     public boolean hasAttribute(String name) {
         return attributes.containsKey(name);
     }
-    
+
     /**
      * 移除属性
      *

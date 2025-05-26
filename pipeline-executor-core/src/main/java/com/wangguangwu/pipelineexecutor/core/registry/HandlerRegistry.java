@@ -1,6 +1,6 @@
 package com.wangguangwu.pipelineexecutor.core.registry;
 
-import com.wangguangwu.pipelineexecutor.core.handler.api.PipelineHandler;
+import com.wangguangwu.pipelineexecutor.core.handler.PipelineHandler;
 
 import java.util.List;
 

@@ -2,7 +2,7 @@ package com.wangguangwu.pipelineexecutor.core.strategy;
 
 import com.wangguangwu.pipelineexecutor.core.context.PipelineContext;
 import com.wangguangwu.pipelineexecutor.core.exception.PipelineExceptionHandler;
-import com.wangguangwu.pipelineexecutor.core.handler.api.PipelineHandler;
+import com.wangguangwu.pipelineexecutor.core.handler.PipelineHandler;
 
 /**
  * 异常处理策略接口

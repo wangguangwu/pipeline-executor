@@ -1,11 +1,13 @@
 package com.wangguangwu.pipelineexecutor.core.pipeline;
 
 import com.wangguangwu.pipelineexecutor.core.context.PipelineContext;
-import com.wangguangwu.pipelineexecutor.core.exception.DefaultPipelineExceptionHandler;
-import com.wangguangwu.pipelineexecutor.core.exception.ExceptionHandlingMode;
+import com.wangguangwu.pipelineexecutor.core.enums.ExceptionHandlingModeEnum;
 import com.wangguangwu.pipelineexecutor.core.exception.PipelineExceptionHandler;
-import com.wangguangwu.pipelineexecutor.core.handler.api.PipelineHandler;
+import com.wangguangwu.pipelineexecutor.core.exception.impl.DefaultPipelineExceptionHandler;
+import com.wangguangwu.pipelineexecutor.core.handler.PipelineHandler;
+import com.wangguangwu.pipelineexecutor.core.registry.DefaultHandlerOrderRegistry;
 import com.wangguangwu.pipelineexecutor.core.registry.DefaultHandlerRegistry;
+import com.wangguangwu.pipelineexecutor.core.registry.HandlerOrderRegistry;
 import com.wangguangwu.pipelineexecutor.core.registry.HandlerRegistry;
 import com.wangguangwu.pipelineexecutor.core.spi.HandlerServiceLoader;
 import com.wangguangwu.pipelineexecutor.core.strategy.ExceptionHandlingStrategy;
@@ -28,26 +30,16 @@ public class Pipeline {
      * 处理器注册表
      */
     private final HandlerRegistry handlerRegistry;
-    
+
     /**
-     * 异常处理器
+     * 处理器顺序注册表
      */
-    private final PipelineExceptionHandler exceptionHandler;
-    
-    /**
-     * 异常处理策略
-     */
-    private final ExceptionHandlingStrategy exceptionHandlingStrategy;
-    
+    private final HandlerOrderRegistry handlerOrderRegistry;
+
     /**
      * 管道执行器
      */
     private final PipelineExecutor executor;
-    
-    /**
-     * 处理器顺序列表
-     */
-    private final List<String> handlerOrder = new ArrayList<>();
     
     /**
      * 是否已初始化
@@ -59,28 +51,29 @@ public class Pipeline {
      * 使用默认的异常处理器和中断管道策略
      */
     public Pipeline() {
-        this(new DefaultHandlerRegistry(), new DefaultPipelineExceptionHandler(), 
-             ExceptionHandlingMode.BREAK_PIPELINE);
+        this(new DefaultHandlerRegistry(), new DefaultHandlerOrderRegistry(), 
+             new DefaultPipelineExceptionHandler(), ExceptionHandlingModeEnum.BREAK_PIPELINE);
     }
     
     /**
      * 构造函数
      *
      * @param handlerRegistry 处理器注册表
+     * @param handlerOrderRegistry 处理器顺序注册表
      * @param exceptionHandler 异常处理器
-     * @param exceptionHandlingMode 异常处理模式
+     * @param exceptionHandlingModeEnum 异常处理模式
      */
-    public Pipeline(HandlerRegistry handlerRegistry, PipelineExceptionHandler exceptionHandler,
-                   ExceptionHandlingMode exceptionHandlingMode) {
+    public Pipeline(HandlerRegistry handlerRegistry, HandlerOrderRegistry handlerOrderRegistry,
+                   PipelineExceptionHandler exceptionHandler, ExceptionHandlingModeEnum exceptionHandlingModeEnum) {
         this.handlerRegistry = handlerRegistry;
-        this.exceptionHandler = exceptionHandler;
-        this.exceptionHandlingStrategy = ExceptionHandlingStrategyFactory.createStrategy(exceptionHandlingMode);
+        this.handlerOrderRegistry = handlerOrderRegistry;
+        ExceptionHandlingStrategy exceptionHandlingStrategy = ExceptionHandlingStrategyFactory.createStrategy(exceptionHandlingModeEnum);
         this.executor = new PipelineExecutor(exceptionHandler, exceptionHandlingStrategy);
     }
     
     /**
      * 初始化管道
-     * 加载SPI处理器
+     * 加载SPI处理器和处理器顺序注册表
      *
      * @return 当前管道实例
      */
@@ -94,11 +87,11 @@ public class Pipeline {
         List<PipelineHandler> spiHandlers = HandlerServiceLoader.loadHandlers();
         for (PipelineHandler handler : spiHandlers) {
             handlerRegistry.register(handler);
-            handlerOrder.add(handler.name());
+            handlerOrderRegistry.addHandler(handler.name());
         }
         
         initialized = true;
-        log.debug("管道初始化完成，共加载{}个处理器", handlerOrder.size());
+        log.debug("管道初始化完成，共加载{}个处理器", handlerRegistry.getHandlers().size());
         return this;
     }
     
@@ -110,9 +103,7 @@ public class Pipeline {
      */
     public Pipeline register(PipelineHandler handler) {
         handlerRegistry.register(handler);
-        if (!handlerOrder.contains(handler.name())) {
-            handlerOrder.add(handler.name());
-        }
+        handlerOrderRegistry.addHandler(handler.name());
         return this;
     }
     
@@ -135,8 +126,7 @@ public class Pipeline {
         }
         
         // 更新处理器顺序
-        handlerOrder.clear();
-        handlerOrder.addAll(handlerNames);
+        handlerOrderRegistry.setOrder(handlerNames);
         return this;
     }
     
@@ -156,9 +146,12 @@ public class Pipeline {
         
         log.debug("开始执行管道，任务ID: {}", context.getTaskId());
         
+        // 获取处理器顺序
+        List<String> orderList = handlerOrderRegistry.getHandlerOrder();
+        
         // 构建处理器列表
         List<PipelineHandler> handlers = new ArrayList<>();
-        for (String name : handlerOrder) {
+        for (String name : orderList) {
             PipelineHandler handler = handlerRegistry.getHandler(name);
             if (handler != null) {
                 handlers.add(handler);
@@ -174,21 +167,6 @@ public class Pipeline {
     }
     
     /**
-     * 查找处理器在顺序列表中的索引
-     *
-     * @param handlerName 处理器名称
-     * @return 索引，如果不存在则返回-1
-     */
-    private int findHandlerIndex(String handlerName) {
-        for (int i = 0; i < handlerOrder.size(); i++) {
-            if (handlerOrder.get(i).equals(handlerName)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-    
-    /**
      * 在指定处理器之前添加处理器
      *
      * @param targetHandlerName 目标处理器名称
@@ -197,20 +175,7 @@ public class Pipeline {
      */
     public Pipeline before(String targetHandlerName, PipelineHandler handler) {
         handlerRegistry.register(handler);
-        
-        int index = findHandlerIndex(targetHandlerName);
-        if (index >= 0) {
-            // 如果处理器已在列表中，先移除
-            handlerOrder.remove(handler.name());
-            // 在目标处理器之前插入
-            handlerOrder.add(index, handler.name());
-        } else {
-            // 目标处理器不存在，添加到末尾
-            if (!handlerOrder.contains(handler.name())) {
-                handlerOrder.add(handler.name());
-            }
-        }
-        
+        handlerOrderRegistry.addBefore(targetHandlerName, handler.name());
         return this;
     }
     
@@ -223,20 +188,7 @@ public class Pipeline {
      */
     public Pipeline after(String targetHandlerName, PipelineHandler handler) {
         handlerRegistry.register(handler);
-        
-        int index = findHandlerIndex(targetHandlerName);
-        if (index >= 0) {
-            // 如果处理器已在列表中，先移除
-            handlerOrder.remove(handler.name());
-            // 在目标处理器之后插入
-            handlerOrder.add(index + 1, handler.name());
-        } else {
-            // 目标处理器不存在，添加到末尾
-            if (!handlerOrder.contains(handler.name())) {
-                handlerOrder.add(handler.name());
-            }
-        }
-        
+        handlerOrderRegistry.addAfter(targetHandlerName, handler.name());
         return this;
     }
     
@@ -248,7 +200,7 @@ public class Pipeline {
      */
     public Pipeline remove(String handlerName) {
         handlerRegistry.removeHandler(handlerName);
-        handlerOrder.remove(handlerName);
+        handlerOrderRegistry.removeHandler(handlerName);
         return this;
     }
     
@@ -259,7 +211,7 @@ public class Pipeline {
      */
     public Pipeline clear() {
         handlerRegistry.clear();
-        handlerOrder.clear();
+        handlerOrderRegistry.clear();
         return this;
     }
     
@@ -273,11 +225,20 @@ public class Pipeline {
     }
     
     /**
+     * 获取处理器顺序注册表
+     *
+     * @return 处理器顺序注册表
+     */
+    public HandlerOrderRegistry getHandlerOrderRegistry() {
+        return handlerOrderRegistry;
+    }
+    
+    /**
      * 获取处理器顺序列表
      *
      * @return 处理器顺序列表
      */
     public List<String> getHandlerOrder() {
-        return new ArrayList<>(handlerOrder);
+        return handlerOrderRegistry.getHandlerOrder();
     }
 }

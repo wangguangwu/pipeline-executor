@@ -1,7 +1,7 @@
 package com.wangguangwu.pipelineexecutor.core.exception;
 
 import com.wangguangwu.pipelineexecutor.core.context.PipelineContext;
-import com.wangguangwu.pipelineexecutor.core.handler.api.PipelineHandler;
+import com.wangguangwu.pipelineexecutor.core.handler.PipelineHandler;
 
 /**
  * 管道异常处理器接口

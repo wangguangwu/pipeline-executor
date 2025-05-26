@@ -2,7 +2,7 @@ package com.wangguangwu.pipelineexecutor.core.pipeline;
 
 import com.wangguangwu.pipelineexecutor.core.context.PipelineContext;
 import com.wangguangwu.pipelineexecutor.core.exception.PipelineExceptionHandler;
-import com.wangguangwu.pipelineexecutor.core.handler.api.PipelineHandler;
+import com.wangguangwu.pipelineexecutor.core.handler.PipelineHandler;
 import com.wangguangwu.pipelineexecutor.core.strategy.ExceptionHandlingStrategy;
 import lombok.extern.slf4j.Slf4j;
 
