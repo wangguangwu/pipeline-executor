@@ -2,36 +2,40 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
+
     <groupId>com.wangguangwu</groupId>
     <artifactId>pipeline-executor</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>pipeline-executor</name>
-    <description>通用责任链执行器</description>
-    
-    <properties>
-        <java.version>17</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        
-        <!-- 依赖版本 -->
-        <lombok.version>1.18.30</lombok.version>
-        <slf4j.version>2.0.9</slf4j.version>
-        <junit.version>5.10.0</junit.version>
-    </properties>
-    
+    <description>责任链执行器框架</description>
+
     <modules>
-        <module>pipeline-executor-core</module>
         <module>pipeline-executor-spi</module>
+        <module>pipeline-executor-core</module>
+        <module>pipeline-executor-extensions</module>
         <module>pipeline-executor-samples</module>
     </modules>
-    
+
+    <properties>
+        <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <lombok.version>1.18.30</lombok.version>
+        <slf4j.version>2.0.9</slf4j.version>
+        <guava.version>32.1.3-jre</guava.version>
+        <micrometer.version>1.12.0</micrometer.version>
+        <junit.version>5.10.0</junit.version>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <!-- 内部模块依赖 -->
+            <dependency>
+                <groupId>com.wangguangwu</groupId>
+                <artifactId>pipeline-executor-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.wangguangwu</groupId>
                 <artifactId>pipeline-executor-core</artifactId>
@@ -39,17 +43,17 @@
             </dependency>
             <dependency>
                 <groupId>com.wangguangwu</groupId>
-                <artifactId>pipeline-executor-spi</artifactId>
+                <artifactId>pipeline-executor-extensions</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            
+
             <!-- 日志依赖 -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
-            
+
             <!-- 工具类依赖 -->
             <dependency>
                 <groupId>org.projectlombok</groupId>
@@ -57,7 +61,21 @@
                 <version>${lombok.version}</version>
                 <scope>provided</scope>
             </dependency>
-            
+
+            <!-- Google Guava -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+
+            <!-- Micrometer -->
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-core</artifactId>
+                <version>${micrometer.version}</version>
+            </dependency>
+
             <!-- 测试依赖 -->
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
@@ -71,15 +89,9 @@
                 <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter</artifactId>
-                <version>${junit.version}</version>
-                <scope>test</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
-    
+
     <build>
         <pluginManagement>
             <plugins>
