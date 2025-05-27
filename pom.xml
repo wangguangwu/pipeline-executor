@@ -5,7 +5,7 @@
 
     <groupId>com.wangguangwu</groupId>
     <artifactId>pipeline-executor</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>pipeline-executor</name>
     <description>责任链执行器框架</description>
@@ -24,7 +24,6 @@
         <lombok.version>1.18.30</lombok.version>
         <slf4j.version>2.0.9</slf4j.version>
         <guava.version>32.1.3-jre</guava.version>
-        <micrometer.version>1.12.0</micrometer.version>
         <junit.version>5.10.0</junit.version>
     </properties>
 
@@ -32,17 +31,17 @@
         <dependencies>
             <!-- 内部模块依赖 -->
             <dependency>
-                <groupId>com.wangguangwu</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>pipeline-executor-spi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.wangguangwu</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>pipeline-executor-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.wangguangwu</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>pipeline-executor-extensions</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -67,13 +66,6 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
-            </dependency>
-
-            <!-- Micrometer -->
-            <dependency>
-                <groupId>io.micrometer</groupId>
-                <artifactId>micrometer-core</artifactId>
-                <version>${micrometer.version}</version>
             </dependency>
 
             <!-- 测试依赖 -->

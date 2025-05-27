@@ -1,102 +1,91 @@
 package com.wangguangwu.pipelineexecutor.spi.context;
 
 /**
- * 管道上下文基础接口（线程安全）
- * <p>
- * 生命周期状态转换：
- * CREATED → ACTIVE → CLOSED
- * 不可逆状态转换，关闭后不可重新激活
- * </p>
- *
  * @author wangguangwu
  */
-public interface PipelineContext extends AutoCloseable {
-
-
-    // ================= 基础信息方法 =================
+public interface PipelineContext {
+    // region 属性存储
 
     /**
-     * 获取上下文唯一标识（线程安全）
+     * 设置上下文属性
      *
-     * @return 全局唯一的上下文ID（格式：UUIDv4）
-     * @implNote 实现应保证此方法无阻塞
+     * @param key   属性键
+     * @param value 属性值（支持 null）
      */
-    String getContextId();
+    void setAttribute(String key, Object value);
 
     /**
-     * 获取上下文创建时间戳（线程安全）
+     * 获取上下文属性（类型不校验）
      *
-     * @return 毫秒级时间戳（System.currentTimeMillis()）
-     * @implNote 时间戳应在对象构造时固化
+     * @return 属性值（可能为 null）
      */
-    long getCreateTime();
-
-    // ================= 状态检查方法 =================
+    Object getAttribute(String key);
 
     /**
-     * 获取当前上下文状态（线程安全）
+     * 获取类型安全的属性值
      *
-     * @return 不可变的状态枚举值
-     * @implSpec 实现必须保证状态读写的原子性
+     * @param type 目标类型（非空）
+     * @return 值或 null（类型不匹配时返回 null）
      */
-    ContextState getState();
+    <T> T getAttribute(String key, Class<T> type);
 
     /**
-     * 检查是否处于活跃状态（线程安全）
+     * 获取属性值或默认值
      *
-     * @return 当状态为ACTIVE时返回true
-     * @see #getState()
+     * @param defaultValue 默认值（可空）
      */
-    default boolean isActive() {
-        return getState() == ContextState.ACTIVE;
+    default <T> T getAttributeOrDefault(String key, Class<T> type, T defaultValue) {
+        T value = getAttribute(key, type);
+        return value != null ? value : defaultValue;
     }
+    // endregion
+
+    // region 异常处理
 
     /**
-     * 检查是否已关闭（线程安全）
+     * 设置处理过程中的异常
      *
-     * @return 当状态为CLOSED时返回true
-     * @see #getState()
+     * @param exception 异常实例（可空，用于清空异常状态）
      */
-    default boolean isClosed() {
-        return getState() == ContextState.CLOSED;
-    }
-
-    // ================= 生命周期控制 =================
+    void setException(Throwable exception);
 
     /**
-     * 激活上下文（线程安全）
-     *
-     * @throws IllegalStateException 如果当前状态不是CREATED
-     * @implNote 典型实现应使用CAS保证状态转换原子性
+     * 获取当前异常（未发生异常时返回 null）
      */
-    void activate();
+    Throwable getException();
+    // endregion
+
+    // region 流程控制
 
     /**
-     * 关闭并释放资源（线程安全）
-     *
-     * @throws IllegalStateException 如果重复关闭
-     * @implSpec 实现必须保证幂等性（多次调用close()不产生副作用）
+     * 标记流程中断（终止后续 Handler 执行）
      */
-    @Override
-    void close();
+    void markBroken();
 
     /**
-     * 上下文状态枚举
+     * 检查流程是否已中断
      */
-    enum ContextState {
-        /**
-         * 初始创建状态（可执行初始化操作）
-         */
-        CREATED,
+    boolean isBroken();
+    // endregion
 
-        /**
-         * 运行中状态（可执行业务操作）
-         */
-        ACTIVE,
+    // region 执行元数据
 
-        /**
-         * 已关闭状态（仅允许资源清理）
-         */
-        CLOSED
-    }
+    /**
+     * 获取当前执行的 Handler 名称（由框架自动设置）
+     */
+    String currentHandlerName();
+
+    /**
+     * 获取执行链唯一标识（可用于日志追踪）
+     */
+    String executionId();
+    // endregion
+
+    // region 上下文重置
+
+    /**
+     * 重置上下文状态（清空属性、异常、中断状态等）
+     */
+    void reset();
+    // endregion
 }
